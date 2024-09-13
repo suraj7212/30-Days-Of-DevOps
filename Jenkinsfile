@@ -3,6 +3,7 @@ pipeline {
   
   tools{
         maven 'maven3'
+        jdk 'jdk17'
         }
 
   environment {
@@ -56,8 +57,15 @@ pipeline {
                   dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
       }
     }
-    
 
+    stage('Mvn deploy to nexus') {
+      steps {
+        configFileProvider([configFile(fileId: 'e94f5fe3-3db8-4399-a661-bcedfd5d20fd', variable: 'mavensettings')]) {
+        sh " mvn -s $mavensettings clean deploy"
+        }
+      }
+    }
+    
     stage('Deploy to Tomcat') {
       steps {
         // Use Jenkins Credentials to securely pass username and password
